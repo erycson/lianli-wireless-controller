@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Érycson Nóbrega"]
 license = "MIT"
+repository = "https://github.com/erycson/lianli-wireless-controller"
 description = "Virtual Lian Li wireless dongle for L-Connect 3, backed by an ESP32-C3 RF Master"
 
 [dependencies]

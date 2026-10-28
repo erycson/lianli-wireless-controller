@@ -38,7 +38,7 @@ the app refuses to start when it detects more than one.
 
 ## Install
 
-1. Download `lianli-controller-<version>-windows-x64.zip` from the releases page and extract it.
+1. Download `lianli-controller-<version>-windows-x64.zip` from the [releases page](https://github.com/erycson/lianli-wireless-controller/releases) and extract it.
 2. Flash the ESP32-C3 (once):
    ```powershell
    pip install esptool
