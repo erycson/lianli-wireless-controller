@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_call:
+
+jobs:
+  controller:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test --lib
+      - run: cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: controller
+          path: target/release/lianli-controller.exe
+
+  firmware:
+    runs-on: ubuntu-latest
+    container: espressif/idf:v4.4.4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Host unit tests
+        run: |
+          command -v make >/dev/null || (apt-get update && apt-get install -y build-essential)
+          make -C firmware/esp32c3/test
+      - name: Build
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          cd firmware/esp32c3
+          idf.py build
+          cd build
+          esptool.py --chip esp32c3 merge_bin -o lianli-c3.bin @flash_args
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: firmware/esp32c3/build/lianli-c3.bin

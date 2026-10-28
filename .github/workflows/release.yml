@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Check tag matches Cargo.toml
+        run: |
+          v=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          test "v$v" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != Cargo.toml $v"; exit 1; }
+      - name: Package
+        run: |
+          v=${GITHUB_REF_NAME#v}
+          mkdir pkg
+          cp dist/controller/lianli-controller.exe pkg/
+          cp dist/firmware/lianli-c3.bin "pkg/lianli-c3-$v.bin"
+          cp README.md LICENSE CHANGELOG.md pkg/
+          (cd pkg && zip -r "../lianli-controller-$v-windows-x64.zip" .)
+          cp dist/firmware/lianli-c3.bin "lianli-c3-$v.bin"
+          # release notes = this version's CHANGELOG section
+          awk -v v="$v" '$0 ~ "^## \\[" v "\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md > notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: notes.md
+          files: |
+            lianli-controller-*-windows-x64.zip
+            lianli-c3-*.bin

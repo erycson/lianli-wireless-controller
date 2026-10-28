@@ -1,0 +1,15 @@
+# Rust
+/target/
+
+# Runtime output next to the exe
+*.log
+
+# Local installers / binaries
+*.exe
+
+# ESP32-C3 firmware build output (sdkconfig is regenerated from sdkconfig.defaults)
+/firmware/esp32c3/build*/
+/firmware/esp32c3/managed_components/
+/firmware/esp32c3/sdkconfig
+/firmware/esp32c3/sdkconfig.old
+/firmware/esp32c3/test/test_host
